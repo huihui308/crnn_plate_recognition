@@ -93,7 +93,16 @@ def build_lprnet(lpr_max_len=8, num_classes=78, dropout_rate=0.5,export=False):
     return Net
 
 if __name__ == "__main__":
+    from thop import profile
+    from torchsummary import summary
     model =build_lprnet(export=True)
-    x=torch.randn(1,3,24,94)
+    x = torch.randn(1,3,24,94)
     out = model(x)
     print(out.shape)
+    summary(model, (3,24,94), device="cpu")
+
+    print('\n----------------------------------------------------------------')
+    flops, params = profile(model, inputs=(x, ))
+    print('\n\nFLOPs = ' + str(flops/1000**3) + 'G')
+    print('Params = ' + str(params/1000**2) + 'M')
+    print('----------------------------------------------------------------')

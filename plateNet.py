@@ -59,9 +59,21 @@ class myNet_ocr(nn.Module):
             return output
 
 if __name__ == '__main__':
+    from thop import profile
+    from torchsummary import summary
     x = torch.randn(1,3,48,168)
-    cfg =[32,'M',64,'M',128,'M',256]
+    # cfg = [32,'M',64,'M',128,'M',256]
+    cfg = [8,8,16,16,'M',32,32,'M',48,48,'M',64,128]          #small model
+    # cfg = [16,16,32,32,'M',64,64,'M',96,96,'M',128,256]       #medium model
+    # cfg = [32,32,64,64,'M',128,128,'M',196,196,'M',256,256]   #big model
     model = myNet_ocr(num_classes=78,export=True,cfg=cfg)
     # print(model)
     out = model(x)
     print(out.shape)
+    summary(model, (3,48,168), device="cpu")
+
+    print('\n----------------------------------------------------------------')
+    flops, params = profile(model, inputs=(x, ))
+    print('\n\nFLOPs = ' + str(flops/1000**3) + 'G')
+    print('Params = ' + str(params/1000**2) + 'M')
+    print('----------------------------------------------------------------')
