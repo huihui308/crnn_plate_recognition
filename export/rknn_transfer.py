@@ -1,5 +1,19 @@
 # 参考教程https://doc.embedfire.com/linux/rk356x/Python/zh/latest/ai/resnet18_pytorch.html
 # Import the ONNX mapping patch first to handle compatibility issues
+
+import sys
+import os
+
+# 当前文件所在目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 上一级目录
+parent_dir = os.path.dirname(current_dir)
+# 放到最前，避免同名模块冲突
+sys.path.insert(0, parent_dir)
+
+from alphabets import plate_chr
+from demo import decodePlate
+
 import onnx_mapping_patch
 
 import numpy as np
@@ -106,13 +120,24 @@ if __name__ == '__main__':
     print('done')
 
     # Inference
-    """
     print('--> Running model')
-    outputs = rknn.inference(inputs=[img])
-    np.save('./pytorch_resnet18_qat_0.npy', outputs[0])
-    #show_outputs(softmax(np.array(outputs[0][0])))
-    print(outputs)
+    preds = rknn.inference(inputs=[img])
+    # np.save('./pytorch_resnet18_qat_0.npy', preds[0])
+    #show_outputs(softmax(np.array(preds[0][0])))
+    # print(preds)
+
+    print(type(preds), len(preds), type(preds[0]), preds[0].shape, type(preds[1]), preds[1].shape)
+    # Use numpy argmax instead of torch argmax
+    preds = np.argmax(preds[0], axis=2)  # Use axis=2 instead of dim=2
+    # print(preds)
+    # Reshape and convert to flat array
+    preds = preds.flatten()  # Use numpy flatten instead of torch view(-1).detach().cpu().numpy()
+    newPreds=decodePlate(preds)
+    plate=""
+    for i in newPreds:
+        plate+=plate_chr[int(i)]
+    print("Recognized plate:", plate)
+
     print('done')
-    """
 
     rknn.release()
