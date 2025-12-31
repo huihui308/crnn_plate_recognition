@@ -5,7 +5,7 @@
 ## pth --> onnx
 Convert `pth` to `onnx`:
 ```bash
-python export.py --weights ./../saved_model/plate_rec_color.pth \
+python pth2onnx.py --weights ./../saved_model/plate_rec_color.pth \
                 --save_path saved_model/plate_rec_color.onnx  \
                 --simplify
 ```
