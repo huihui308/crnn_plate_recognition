@@ -13,9 +13,9 @@ sys.path.insert(0, parent_dir)
 
 from alphabets import plate_chr
 from demo import decodePlate
+from onnx_infer import plate_color_list
 
 import onnx_mapping_patch
-
 import numpy as np
 import cv2
 from rknn.api import RKNN
@@ -103,10 +103,16 @@ if __name__ == '__main__':
         exit(ret)
     print('done')
 
-
     # Set inputs
-    img = cv2.imread('./0_125.jpg')
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_path = './test_images/0_127.jpg'
+    if not os.path.exists(img_path):
+        raise ValueError(f"Warning: Image {img_path} not found. Using a dummy image for testing.")
+    else:
+        img = cv2.imread(img_path)
+        if img is None:
+            raise ValueError(f"Warning: Image {img_path} not found. Using a dummy image for testing.")
+        else:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # Resize to the expected input size: 168x48 (width x height) as per the model
     img = cv2.resize(img, (168, 48))  # (width, height)
     #img = np.expand_dims(img, 0)
@@ -126,17 +132,25 @@ if __name__ == '__main__':
     #show_outputs(softmax(np.array(preds[0][0])))
     # print(preds)
 
-    print(type(preds), len(preds), type(preds[0]), preds[0].shape, type(preds[1]), preds[1].shape)
+    # print(type(preds), len(preds), type(preds[0]), preds[0].shape, type(preds[1]), preds[1].shape)
+    color_results = preds[1]
+    # print("Color results:", color_results)
+    # Convert color prediction to specific color name
+    # plate_color_list = ['黑色', '蓝色', '绿色', '白色', '黄色']
+    color_index = np.argmax(color_results, axis=1)[0]  # Get the index of the highest probability
+    plate_color = plate_color_list[color_index]
+    print("Plate color:", plate_color)
+
     # Use numpy argmax instead of torch argmax
     preds = np.argmax(preds[0], axis=2)  # Use axis=2 instead of dim=2
     # print(preds)
     # Reshape and convert to flat array
     preds = preds.flatten()  # Use numpy flatten instead of torch view(-1).detach().cpu().numpy()
-    newPreds=decodePlate(preds)
+    newPreds = decodePlate(preds)
     plate=""
     for i in newPreds:
         plate+=plate_chr[int(i)]
-    print("Recognized plate:", plate)
+    print(f'Recognized plate: {plate} -- {plate_color}')
 
     print('done')
 

@@ -18,7 +18,6 @@ import torch
 import onnx
 
 
-
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='saved_model/best.pth', help='weights path')  # from yolov5/models/
