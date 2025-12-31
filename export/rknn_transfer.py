@@ -7,7 +7,8 @@ import cv2
 from rknn.api import RKNN
 import torchvision.models as models
 import torch
-import os
+import os, onnx
+import argparse
 
 def softmax(x):
     return np.exp(x)/sum(np.exp(x))
@@ -19,6 +20,14 @@ def torch_version():
     return [int(v) for v in torch_ver]
 
 if __name__ == '__main__':
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--onnx', type=str, 
+            default='./saved_model/plate_rec_color.onnx', help='onnx path')
+    parser.add_argument('--save_path', type=str, 
+            default='./saved_model/plate_rec_color.rknn', help='rknn save path')
+    # parser.add_argument('--batch_size', type=int, default=1, help='batch size')
+    opt = parser.parse_args()
+    print(opt)
 
     if torch_version() < [1, 9, 0]:
         import torch
@@ -26,22 +35,17 @@ if __name__ == '__main__':
               "Please update the torch version to '1.9.0' or higher!".format(torch.__version__))
         exit(0)
 
-    #MODEL = './plate_rec_color_small_20230307_ok.onnx'
-    #MODEL = './plate_rec_fixed.onnx'
-    MODEL = './saved_model/plate_rec_color.onnx'
 
-
-    """
-    import onnx
-
-    model = onnx.load(MODEL)
+    batch_size = 1
+    model = onnx.load(opt.onnx)
     inp = model.graph.input[0]
     print("Input name:", inp.name)
     for i, dim in enumerate(inp.type.tensor_type.shape.dim):
-        print(f"  Dim {i}: {dim.dim_value if dim.dim_value != 0 else dim.dim_param}")
-    """
-
-
+        if i == 0:
+            batch_size = dim.dim_value if dim.dim_value != 0 else dim.dim_param
+            print(f"  Batch size: {batch_size}")
+        else:
+            print(f"  Dim {i}: {dim.dim_value if dim.dim_value != 0 else dim.dim_param}")
 
     # Create RKNN object
     rknn = RKNN(verbose=True)
@@ -55,20 +59,14 @@ if __name__ == '__main__':
         target_platform='rk3588',
         optimization_level=3,        # 最高优化级别
     )
- 
-    #rknn.config(mean_values=[123.675, 116.28, 103.53], std_values=[58.395, 58.395, 58.395], target_platform='rk3568')
-    #rknn.config(mean_values=[125.307, 122.961, 113.8575], std_values=[51.5865, 50.847, 51.255], target_platform='rk3568')
     print('done')
 
     # Load model
     print('--> Loading model')
-    #ret = rknn.load_pytorch(model=model, input_size_list=input_size_list)
-    #ret = rknn.load_onnx(model=MODEL)
-
     ret = rknn.load_onnx(
-        model = MODEL,
+        model = opt.onnx,
         inputs = ['images'],  # Specify the input name
-        input_size_list = [[1, 3, 48, 168]]  # [batch_size, channels, height, width]
+        input_size_list = [[batch_size, 3, 48, 168]]  # [batch_size, channels, height, width]
     )
     if ret != 0:
         print('Load model failed!')
@@ -85,11 +83,12 @@ if __name__ == '__main__':
 
     # Export rknn model
     print('--> Export rknn model')
-    ret = rknn.export_rknn('./saved_model/plate_rec_color_small_20230307_ok.rknn')
+    ret = rknn.export_rknn(opt.save_path)
     if ret != 0:
         print('Export rknn model failed!')
         exit(ret)
     print('done')
+
 
     # Set inputs
     img = cv2.imread('./0_125.jpg')
@@ -107,11 +106,13 @@ if __name__ == '__main__':
     print('done')
 
     # Inference
+    """
     print('--> Running model')
     outputs = rknn.inference(inputs=[img])
     np.save('./pytorch_resnet18_qat_0.npy', outputs[0])
     #show_outputs(softmax(np.array(outputs[0][0])))
     print(outputs)
     print('done')
+    """
 
     rknn.release()
