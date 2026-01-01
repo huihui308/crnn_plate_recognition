@@ -7,7 +7,7 @@ import os
 # 当前文件所在目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # 上一级目录
-parent_dir = os.path.dirname(current_dir)
+parent_dir = os.path.dirname(os.path.dirname(current_dir))
 # 放到最前，避免同名模块冲突
 sys.path.insert(0, parent_dir)
 
@@ -24,14 +24,17 @@ import torch
 import os, onnx
 import argparse
 
+
 def softmax(x):
     return np.exp(x)/sum(np.exp(x))
+
 
 def torch_version():
     import torch
     torch_ver = torch.__version__.split('.')
     torch_ver[2] = torch_ver[2].split('+')[0]
     return [int(v) for v in torch_ver]
+
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
@@ -49,7 +52,7 @@ if __name__ == '__main__':
               "Please update the torch version to '1.9.0' or higher!".format(torch.__version__))
         exit(0)
 
-    batch_size = 1  # Keep batch size as 1 as defined in the ONNX model
+    batch_size = 1
     model = onnx.load(opt.onnx)
     inp = model.graph.input[0]
     print("Input name:", inp.name)
@@ -108,27 +111,19 @@ if __name__ == '__main__':
 
     # Load first image
     if not os.path.exists(img_path1):
-        print(f"Warning: Image {img_path1} not found. Using a dummy image for testing.")
-        img1 = np.random.randint(0, 255, size=(48, 168, 3), dtype=np.uint8)
-    else:
-        img1 = cv2.imread(img_path1)
-        if img1 is None:
-            print(f"Warning: Image {img_path1} not found. Using a dummy image for testing.")
-            img1 = np.random.randint(0, 255, size=(48, 168, 3), dtype=np.uint8)
-        else:
-            img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
+        raise ValueError(f"Warning: Image {img_path1} not found.")
+    img1 = cv2.imread(img_path1)
+    if img1 is None:
+        raise ValueError(f"Warning: Image {img_path1} not found.")
+    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
 
     # Load second image
     if not os.path.exists(img_path2):
-        print(f"Warning: Image {img_path2} not found. Using a dummy image for testing.")
-        img2 = np.random.randint(0, 255, size=(48, 168, 3), dtype=np.uint8)
-    else:
-        img2 = cv2.imread(img_path2)
-        if img2 is None:
-            print(f"Warning: Image {img_path2} not found. Using a dummy image for testing.")
-            img2 = np.random.randint(0, 255, size=(48, 168, 3), dtype=np.uint8)
-        else:
-            img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
+        raise ValueError(f"Warning: Image {img_path1} not found.")
+    img2 = cv2.imread(img_path2)
+    if img2 is None:
+        raise ValueError(f"Warning: Image {img_path1} not found.")
+    img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
     # Resize to the expected input size: 168x48 (width x height) as per the model
     img1 = cv2.resize(img1, (168, 48))  # (width, height)

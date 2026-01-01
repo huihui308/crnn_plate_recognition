@@ -12,7 +12,6 @@ python pth2onnx.py --weights ./../saved_model/plate_rec_color.pth \
 ```
 
 
-
 ## onnx --> rknn
 Convert `onnx` to `rknn`:
 ```bash
@@ -21,5 +20,12 @@ python rknn_transfer.py --onnx ./saved_model/plate_rec_color.onnx \
 ```
 
 
+## inference
 
+```bash
+python rknn_transfer.py
 
+or
+
+python infer_batch.py
+```
