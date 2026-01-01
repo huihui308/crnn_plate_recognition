@@ -5,8 +5,8 @@
 ## pth --> onnx
 Convert `pth` to `onnx`:
 ```bash
-python pth2onnx.py --weights ./../saved_model/plate_rec_color.pth \
-                --save_path saved_model/plate_rec_color.onnx  \
+python pth2onnx.py --weights ./saved_model/plate_rec_color.pth \
+                --save_path ./saved_model/plate_rec_color_bs2.onnx  \
                 --batch_size 2 \
                 --simplify
 ```
@@ -15,17 +15,7 @@ python pth2onnx.py --weights ./../saved_model/plate_rec_color.pth \
 ## onnx --> rknn
 Convert `onnx` to `rknn`:
 ```bash
-python rknn_transfer.py --onnx ./saved_model/plate_rec_color.onnx \
-                --save_path ./saved_model/plate_rec_color.rknn
+python rknn_transfer_batch.py --onnx ./saved_model/plate_rec_color_bs1.onnx \
+                --save_path ./saved_model/plate_rec_color_bs1.rknn
 ```
 
-
-## inference
-
-```bash
-python rknn_transfer.py
-
-or
-
-python infer_batch.py
-```

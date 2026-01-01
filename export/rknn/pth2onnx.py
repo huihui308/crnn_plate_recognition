@@ -6,7 +6,7 @@ import os
 # 当前文件所在目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # 上一级目录
-parent_dir = os.path.dirname(current_dir)
+parent_dir = os.path.dirname(os.path.dirname(current_dir))
 # 放到最前，避免同名模块冲突
 sys.path.insert(0, parent_dir)
 
