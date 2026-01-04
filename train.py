@@ -25,8 +25,8 @@ def parse_arg():
     args = parser.parse_args()
    
     with open(args.cfg, 'r') as f:
-        # config = yaml.load(f, Loader=yaml.FullLoader)
-        config = yaml.load(f)
+        # config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.FullLoader)
         config = edict(config)
 
     config.DATASET.ALPHABETS = plateName
@@ -57,8 +57,8 @@ def main():
     }
 
     # construct face related neural networks
-    #cfg =[8,8,16,16,'M',32,32,'M',48,48,'M',64,128] #small model
-    cfg =[16,16,32,32,'M',64,64,'M',96,96,'M',128,256]#medium model
+    cfg =[8,8,16,16,'M',32,32,'M',48,48,'M',64,128] #small model
+    # cfg =[16,16,32,32,'M',64,64,'M',96,96,'M',128,256]#medium model
     # cfg =[32,32,64,64,'M',128,128,'M',196,196,'M',256,256] #big model
     # model = crnn.get_crnn(config,cfg=cfg)
     model = myNet_ocr(num_classes=len(plate_chr),cfg=cfg)
