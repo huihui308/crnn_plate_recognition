@@ -1,5 +1,16 @@
 
 
+Notice!!!!!!!!!!!!!!!!!!!!!!!!!!!!: This project is not the newest, get newest from gitee.
+
+
+
+
+
+
+
+
+
+
 ### Install dependence
 ```bash
 pip install tensorboardX
@@ -30,14 +41,17 @@ cp output/360CC/crnn/2026-01-04-14-51/checkpoints/checkpoint_99_acc_0.9085.pth s
 Add color recognition branch:
 ```bash
 python train_fix_color.py --weights saved_model/plate_rec_bj.pth --train_path datasets/train  --val_path datasets/val --model_path color_model
-
 ```
+The output in `./color_model`
 
 ----
 
 ### Pth inference
 ```bash
 python demo_plate_color.py --model_path saved_model/plate_rec_color.pth --image_path images/test.jpg
+
+
+python demo.py --model_path output/360CC/crnn/2026-01-04-14-51/checkpoints/checkpoint_99_acc_0.9085.pth --image_path images/tmp6C79.png
 ```
 
 ---

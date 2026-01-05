@@ -1,3 +1,27 @@
+
+
+
+Notice!!!!!!!!!!!!!!!!!!!!!!!!!!!!: This project is not the newest, get newest from gitee.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 车牌识别+车牌颜色
 
 车牌识别+车牌颜色用一个模型如图所示，右边是我们已经训练好的车牌字符识别模型([训练方法看这里](https://github.com/we0091234/crnn_plate_recognition))，只需训练左边边颜色分支即可。
